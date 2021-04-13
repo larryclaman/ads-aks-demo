@@ -14,16 +14,9 @@ spec:
     spec:
       nodeSelector:
         "beta.kubernetes.io/os": linux
-      volumes:
-        - name: volume
-          persistentVolumeClaim:
-               claimName: azure-managed-disk
       containers:
       - name: azure-vote-back
         image: mcr.microsoft.com/oss/bitnami/redis:6.0.8
-        volumeMounts:
-            - mountPath: "/mnt/azure"
-              name: volume
         env:
         - name: ALLOW_EMPTY_PASSWORD
           value: "yes"
@@ -80,22 +73,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: azure-vote-front
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"   
 spec:
   type: LoadBalancer
   ports:
   - port: 80
   selector:
     app: azure-vote-front
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: azure-managed-disk
-spec:
-  accessModes:
-  - ReadWriteOnce
-  storageClassName: managed-premium
-  resources:
-    requests:
-      storage: 1Gi
-      
